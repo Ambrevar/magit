@@ -257,12 +257,12 @@ commit message."
              (not (magit-rev-ancestor-p
                    (concat (magit-git-string "log" "--format=%H"
                                              "-1" "--merges" wipref)
-                           "^2")
+                           "^")
                    ref))))
     (setq start-msg (format "merge %s into %s" ref start-msg))
     (magit-update-ref wipref start-msg
                       (magit-git-string "commit-tree" "--no-gpg-sign"
-                                        "-p" wipref "-p" ref
+                                        "-p" ref "-p" wipref
                                         "-m" start-msg
                                         (concat ref "^{tree}")))
     (setq parent wipref)))
