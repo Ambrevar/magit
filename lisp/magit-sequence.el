@@ -116,6 +116,11 @@ This discards all changes made since the sequence started."
 
 ;;; Cherry-Pick
 
+(defcustom magit-perl-executable "perl"
+  "The Perl executable."
+  :group 'magit-sequence
+  :type 'string)
+
 ;;;###autoload (autoload 'magit-cherry-pick-popup "magit-sequence" nil t)
 (magit-define-popup magit-cherry-pick-popup
   "Popup console for cherry-pick commands."
@@ -275,8 +280,9 @@ the process manually."
                 (t
                  (magit-call-git "checkout" src)
                  (let ((process-environment process-environment))
-                   (push (format "%s=perl -i -ne '/^pick (%s)/ or print'"
+                   (push (format "%s=%s -i -ne '/^pick (%s)/ or print'"
                                  "GIT_SEQUENCE_EDITOR"
+                                 magit-perl-executable
                                  (mapconcat #'magit-rev-abbrev commits "|"))
                          process-environment)
                    (magit-run-git-sequencer "rebase" "-i" keep))
@@ -629,7 +635,8 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to edit it,"
-    "perl -i -p -e '++$x if not $x and s/^pick/edit/'"
+    (concat magit-perl-executable
+            " -i -p -e '++$x if not $x and s/^pick/edit/'")
     t))
 
 ;;;###autoload
@@ -639,7 +646,8 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to reword its message,"
-    "perl -i -p -e '++$x if not $x and s/^pick/reword/'"))
+    (concat magit-perl-executable
+            " -i -p -e '++$x if not $x and s/^pick/reword/'")))
 
 ;;;###autoload
 (defun magit-rebase-remove-commit (commit args)
@@ -648,7 +656,8 @@ START has to be selected from a list of recent commits."
                      (magit-rebase-arguments)))
   (magit-rebase-interactive-1 commit args
     "Type %p on a commit to remove it,"
-    "perl -i -p -e '++$x if not $x and s/^pick/# pick/'"
+    (concat magit-perl-executable
+            "%s -i -p -e '++$x if not $x and s/^pick/# pick/'")
     nil nil t))
 
 ;;;###autoload
